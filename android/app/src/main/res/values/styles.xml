@@ -1,3 +1,4 @@
 <resources>
+    <string name="accessibility_service_description">Receives NealLink pointer actions from your paired controller</string>
     <style name="Theme.NealLink" parent="Theme.Material3.DayNight.NoActionBar" />
 </resources>
