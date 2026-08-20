@@ -11,9 +11,9 @@
     <string name="accessibility">Enable Accessibility</string>
     <string name="accessibility_enabled">Accessibility enabled</string>
     <string name="accessibility_disabled">Accessibility permission required</string>
-    <string name="accessibility_help">NealLink uses Accessibility gestures to turn remote pointer events into taps and scrolling on Android.</string>
-    <string name="network_help">Keep the tablet and Ubuntu laptop on the same Wi-Fi/LAN. The address can be changed anytime.</string>
-    <string name="version">Version 0.3.0</string>
-    <string name="build_note">Ubuntu → Android • Local network</string>
-    <string name="accessibility_service_description">Receives NealLink pointer actions from your paired controller</string>
+    <string name="accessibility_help">NealLink uses Accessibility to place the pointer overlay and perform taps and scrolling on Android.</string>
+    <string name="network_help">Keep the tablet and Ubuntu laptop on the same Wi-Fi or phone hotspot. Press Ctrl+Alt+Space on Ubuntu to switch control between devices.</string>
+    <string name="version">Version 0.4.0</string>
+    <string name="build_note">Ubuntu ↔ Android • Toggle with Ctrl+Alt+Space</string>
+    <string name="accessibility_service_description">Receives NealLink pointer actions from the Ubuntu controller</string>
 </resources>
