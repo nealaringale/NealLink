@@ -2,6 +2,7 @@ package com.neallink.client
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
@@ -15,31 +16,49 @@ class CursorOverlay(private val context: Context) {
             setColor(Color.WHITE)
             setStroke(3, Color.BLACK)
         }
+        elevation = 100f
     }
     private var shown = false
 
     fun show(x: Float, y: Float) {
         if (!shown) {
             val params = WindowManager.LayoutParams(
-                26, 26,
+                30,
+                30,
                 WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                android.graphics.PixelFormat.TRANSLUCENT
-            ).apply { gravity = Gravity.TOP or Gravity.START }
-            wm.addView(cursor, params)
-            shown = true
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                PixelFormat.TRANSLUCENT,
+            ).apply {
+                gravity = Gravity.TOP or Gravity.START
+                x = 0
+                y = 0
+            }
+            try {
+                wm.addView(cursor, params)
+                shown = true
+            } catch (_: Exception) {
+                return
+            }
         }
-        val lp = cursor.layoutParams as WindowManager.LayoutParams
-        lp.x = x.toInt() - 13
-        lp.y = y.toInt() - 13
-        wm.updateViewLayout(cursor, lp)
+
+        try {
+            val lp = cursor.layoutParams as WindowManager.LayoutParams
+            lp.x = x.toInt() - 15
+            lp.y = y.toInt() - 15
+            wm.updateViewLayout(cursor, lp)
+        } catch (_: Exception) {
+            shown = false
+        }
     }
 
     fun hide() {
-        if (shown) {
+        if (!shown) return
+        try {
             wm.removeView(cursor)
+        } catch (_: Exception) {
+            // Service teardown can race with overlay removal.
+        } finally {
             shown = false
         }
     }
