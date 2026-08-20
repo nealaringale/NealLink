@@ -1,0 +1,13 @@
+<resources>
+    <color name="nl_bg">#0B0E13</color>
+    <color name="nl_surface">#151922</color>
+    <color name="nl_surface_2">#1D2230</color>
+    <color name="nl_primary">#A78BFA</color>
+    <color name="nl_primary_dark">#8B5CF6</color>
+    <color name="nl_text">#F4F1FF</color>
+    <color name="nl_text_muted">#A9A6B7</color>
+    <color name="nl_success">#4ADE80</color>
+    <color name="nl_warning">#FBBF24</color>
+    <color name="nl_error">#FB7185</color>
+    <color name="nl_white">#FFFFFF</color>
+</resources>
