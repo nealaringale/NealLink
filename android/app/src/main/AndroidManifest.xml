@@ -4,6 +4,7 @@
 
     <application
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:label="NealLink"
         android:theme="@style/Theme.NealLink">
         <activity android:name=".MainActivity" android:exported="true">
