@@ -17,8 +17,6 @@ from websockets.asyncio.server import ServerConnection, serve
 class UbuntuAndroidBridge:
     """Share one physical mouse/keyboard between Ubuntu and Android with a toggle hotkey."""
 
-    TOGGLE_KEYS = {keyboard.Key.ctrl_l, keyboard.Key.ctrl_r, keyboard.Key.alt_l, keyboard.Key.alt_r, keyboard.Key.space}
-
     def __init__(self, config_path: str) -> None:
         self.config = json.loads(Path(config_path).read_text(encoding="utf-8"))
         self.host = str(self.config.get("host", "0.0.0.0"))
@@ -213,8 +211,6 @@ class UbuntuAndroidBridge:
 
         if not combo_active:
             self.toggle_latched = False
-            if not self.pressed_keys:
-                self.suppress_toggle_keys = False
 
         return self.suppress_toggle_keys
 
@@ -227,11 +223,14 @@ class UbuntuAndroidBridge:
             self.send({"v": 1, "type": "key", "key": self._key_name(key), "pressed": True})
 
     def on_release(self, key: keyboard.Key | keyboard.KeyCode) -> None:
+        was_suppressed = self.suppress_toggle_keys
         self._check_toggle_combo(key, False)
         with self.state_lock:
             active = self.tablet_mode and self.tablet is not None
-        if active and not self.suppress_toggle_keys:
+        if active and not was_suppressed and not self.suppress_toggle_keys:
             self.send({"v": 1, "type": "key", "key": self._key_name(key), "pressed": False})
+        if not self.pressed_keys:
+            self.suppress_toggle_keys = False
 
     async def handler(self, websocket: ServerConnection) -> None:
         with self.state_lock:
