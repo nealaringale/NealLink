@@ -5,7 +5,9 @@
     <application
         android:allowBackup="true"
         android:usesCleartextTraffic="true"
-        android:label="NealLink"
+        android:icon="@drawable/ic_neallink_logo"
+        android:roundIcon="@drawable/ic_neallink_logo"
+        android:label="@string/app_name"
         android:theme="@style/Theme.NealLink">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
