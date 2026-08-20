@@ -45,13 +45,23 @@ object TabletSocket {
                 try {
                     val msg = JSONObject(text)
                     when (msg.optString("type")) {
-                        "move" -> NealAccessibilityService.moveBy(msg.optInt("dx"), msg.optInt("dy"))
+                        "move" -> {
+                            val dx = msg.optInt("dx")
+                            val dy = msg.optInt("dy")
+                            MainActivity.updateNetworkCursor(dx, dy)
+                            NealAccessibilityService.moveBy(dx, dy)
+                        }
                         "click" -> NealAccessibilityService.click(
                             msg.optString("button", "left"),
                             msg.optBoolean("pressed")
                         )
                         "scroll" -> NealAccessibilityService.scroll(msg.optInt("dx"), msg.optInt("dy"))
-                        "cursor" -> NealAccessibilityService.setCursor(msg.optInt("x"), msg.optInt("y"))
+                        "cursor" -> {
+                            val x = msg.optInt("x")
+                            val y = msg.optInt("y")
+                            MainActivity.setNetworkCursor(x, y)
+                            NealAccessibilityService.setCursor(x, y)
+                        }
                     }
                 } catch (_: Exception) {
                     status("Invalid message received")
