@@ -43,21 +43,25 @@ jobs:
           java -version
           gradle --version
 
-      - name: Configure persistent signing
-        if: ${{ secrets.NEALLINK_KEYSTORE_BASE64 != '' }}
+      - name: Configure persistent signing when secrets are available
         env:
           KEYSTORE_B64: ${{ secrets.NEALLINK_KEYSTORE_BASE64 }}
           STORE_PASSWORD: ${{ secrets.NEALLINK_STORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.NEALLINK_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.NEALLINK_KEY_PASSWORD }}
         run: |
-          printf '%s' "$KEYSTORE_B64" | base64 --decode > neallink-release.jks
-          cat > keystore.properties <<EOF
+          if [ -n "$KEYSTORE_B64" ] && [ -n "$STORE_PASSWORD" ] && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            printf '%s' "$KEYSTORE_B64" | base64 --decode > neallink-release.jks
+            cat > keystore.properties <<EOF
           storeFile=neallink-release.jks
           storePassword=$STORE_PASSWORD
           keyAlias=$KEY_ALIAS
           keyPassword=$KEY_PASSWORD
           EOF
+            echo "Persistent release signing configured."
+          else
+            echo "Persistent signing secrets are not configured; release APK will use the debug key for this build."
+          fi
 
       - name: Build debug APK
         run: gradle --no-daemon --stacktrace --warning-mode all assembleDebug
