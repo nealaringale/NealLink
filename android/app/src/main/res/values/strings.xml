@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">NealLink</string>
+    <string name="app_tagline">One keyboard. Many screens.</string>
+    <string name="status_title">Connection</string>
+    <string name="status_disconnected">Not connected</string>
+    <string name="status_ready">Ready to connect</string>
+    <string name="server_label">Ubuntu WebSocket server</string>
+    <string name="server_hint">ws://192.168.x.x:24891</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="accessibility">Enable Accessibility</string>
+    <string name="accessibility_enabled">Accessibility enabled</string>
+    <string name="accessibility_disabled">Accessibility permission required</string>
+    <string name="accessibility_help">NealLink uses Accessibility gestures to turn remote pointer events into taps and scrolling on Android.</string>
+    <string name="network_help">Keep the tablet and Ubuntu laptop on the same Wi-Fi/LAN. The address can be changed anytime.</string>
+    <string name="version">Version 0.3.0</string>
+    <string name="build_note">Ubuntu → Android • Local network</string>
+    <string name="accessibility_service_description">Receives NealLink pointer actions from your paired controller</string>
+</resources>
