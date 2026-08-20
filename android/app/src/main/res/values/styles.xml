@@ -1,4 +1,11 @@
 <resources>
-    <string name="accessibility_service_description">Receives NealLink pointer actions from your paired controller</string>
-    <style name="Theme.NealLink" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Theme.NealLink" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:statusBarColor">@color/nl_bg</item>
+        <item name="android:navigationBarColor">@color/nl_bg</item>
+        <item name="android:windowBackground">@color/nl_bg</item>
+        <item name="colorPrimary">@color/nl_primary</item>
+        <item name="colorSecondary">@color/nl_primary</item>
+    </style>
 </resources>
