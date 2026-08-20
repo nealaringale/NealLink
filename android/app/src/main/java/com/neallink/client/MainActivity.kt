@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -15,8 +16,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var status: TextView
     private lateinit var statusDot: View
     private lateinit var accessibilityStatus: TextView
+    private lateinit var accessibilityButton: MaterialButton
     private lateinit var connectButton: MaterialButton
-    private lateinit var serverUrl: android.widget.EditText
+    private lateinit var serverUrl: EditText
 
     private val prefs by lazy { getSharedPreferences("neallink", Context.MODE_PRIVATE) }
 
@@ -27,11 +29,12 @@ class MainActivity : AppCompatActivity() {
         status = findViewById(R.id.status)
         statusDot = findViewById(R.id.statusDot)
         accessibilityStatus = findViewById(R.id.accessibilityStatus)
+        accessibilityButton = findViewById(R.id.accessibility)
         serverUrl = findViewById(R.id.serverUrl)
         connectButton = findViewById(R.id.connect)
-        val accessibility = findViewById<MaterialButton>(R.id.accessibility)
 
         serverUrl.setText(prefs.getString("server_url", "ws://192.168.31.170:24891"))
+        updateStatus(getString(R.string.status_ready), false)
 
         connectButton.setOnClickListener {
             val url = serverUrl.text.toString().trim()
@@ -48,20 +51,21 @@ class MainActivity : AppCompatActivity() {
             TabletSocket.connect(url) { text ->
                 runOnUiThread {
                     val connected = text == "Connected"
-                    updateStatus(text, connected, error = text.startsWith("Disconnected") || text.startsWith("Closed"))
+                    val failed = text.startsWith("Disconnected") || text.startsWith("Closed")
+                    updateStatus(text, connected, error = failed)
                     connectButton.isEnabled = true
-                    connectButton.text = getString(if (connected) R.string.connect else R.string.connect)
+                    connectButton.text = getString(R.string.connect)
                 }
             }
         }
 
-        accessibility.setOnClickListener {
-            try {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_DETAILS_SETTINGS).apply {
+        accessibilityButton.setOnClickListener {
+            if (isAccessibilityEnabled()) {
+                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            } else {
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.parse("package:$packageName")
                 })
-            } catch (_: Exception) {
-                startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
             }
         }
 
@@ -86,8 +90,8 @@ class MainActivity : AppCompatActivity() {
         status.setTextColor(if (connected) Color.parseColor("#4ADE80") else Color.parseColor("#F4F1FF"))
     }
 
-    private fun updateAccessibilityState() {
-        val enabled = try {
+    private fun isAccessibilityEnabled(): Boolean {
+        return try {
             val enabledServices = Settings.Secure.getString(
                 contentResolver,
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
@@ -96,13 +100,17 @@ class MainActivity : AppCompatActivity() {
         } catch (_: Exception) {
             false
         }
+    }
 
-        if (enabled) {
+    private fun updateAccessibilityState() {
+        if (isAccessibilityEnabled()) {
             accessibilityStatus.text = getString(R.string.accessibility_enabled)
             accessibilityStatus.setTextColor(Color.parseColor("#4ADE80"))
+            accessibilityButton.text = "Manage Accessibility"
         } else {
             accessibilityStatus.text = getString(R.string.accessibility_disabled)
             accessibilityStatus.setTextColor(Color.parseColor("#FBBF24"))
+            accessibilityButton.text = "Open App Settings"
         }
     }
 }
