@@ -1,5 +1,7 @@
 {
   "name": "NEAL-UBUNTU",
   "host": "0.0.0.0",
-  "port": 24891
+  "port": 24891,
+  "edge_margin": 6,
+  "capture_center_ratio": 0.5
 }
