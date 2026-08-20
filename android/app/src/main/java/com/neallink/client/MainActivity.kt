@@ -34,14 +34,14 @@ class MainActivity : AppCompatActivity() {
         serverUrl = findViewById(R.id.serverUrl)
         connectButton = findViewById(R.id.connect)
 
-        serverUrl.setText(prefs.getString("server_url", "ws://10.84.241.248:24891"))
+        serverUrl.setText(prefs.getString("server_url", ""))
         updateStatus(getString(R.string.status_ready), connected = false)
         updateAccessibilityState()
 
         connectButton.setOnClickListener {
             val url = serverUrl.text.toString().trim()
             if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
-                updateStatus("Invalid WebSocket URL", connected = false, error = true)
+                updateStatus("Enter the Ubuntu WebSocket address", connected = false, error = true)
                 return@setOnClickListener
             }
 
@@ -80,7 +80,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateStatus(text: String, connected: Boolean, error: Boolean = false) {
-        status.text = text
         val color = when {
             connected -> Color.parseColor("#4ADE80")
             error -> Color.parseColor("#FB7185")
