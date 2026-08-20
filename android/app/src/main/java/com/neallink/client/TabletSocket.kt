@@ -45,11 +45,30 @@ object TabletSocket {
                 try {
                     val msg = JSONObject(text)
                     when (msg.optString("type")) {
+                        "mode" -> {
+                            when (msg.optString("mode")) {
+                                "tablet" -> {
+                                    val x = msg.optInt("x", 540)
+                                    val y = msg.optInt("y", 1200)
+                                    MainActivity.setNetworkCursor(x, y)
+                                    NealAccessibilityService.setCursor(x, y)
+                                    status("Tablet control")
+                                }
+                                "host" -> status("Connected")
+                            }
+                        }
                         "move" -> {
                             val dx = msg.optInt("dx")
                             val dy = msg.optInt("dy")
-                            MainActivity.updateNetworkCursor(dx, dy)
-                            NealAccessibilityService.moveBy(dx, dy)
+                            val x = msg.optInt("x", -1)
+                            val y = msg.optInt("y", -1)
+                            if (x >= 0 && y >= 0) {
+                                MainActivity.setNetworkCursor(x, y)
+                                NealAccessibilityService.setCursor(x, y)
+                            } else {
+                                MainActivity.updateNetworkCursor(dx, dy)
+                                NealAccessibilityService.moveBy(dx, dy)
+                            }
                         }
                         "click" -> NealAccessibilityService.click(
                             msg.optString("button", "left"),
