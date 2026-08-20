@@ -31,8 +31,6 @@ class CursorOverlay(private val context: Context) {
                 PixelFormat.TRANSLUCENT,
             ).apply {
                 gravity = Gravity.TOP or Gravity.START
-                x = 0
-                y = 0
             }
             try {
                 wm.addView(cursor, params)
