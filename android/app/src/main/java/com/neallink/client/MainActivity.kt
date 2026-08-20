@@ -6,8 +6,10 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.Gravity
 import android.view.View
 import android.widget.EditText
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.button.MaterialButton
@@ -19,13 +21,35 @@ class MainActivity : AppCompatActivity() {
     private lateinit var accessibilityButton: MaterialButton
     private lateinit var connectButton: MaterialButton
     private lateinit var serverUrl: EditText
+    private lateinit var cursorView: View
+    private lateinit var rootFrame: FrameLayout
 
     private val prefs by lazy { getSharedPreferences("neallink", Context.MODE_PRIVATE) }
 
+    companion object {
+        @Volatile
+        private var instance: MainActivity? = null
+
+        fun updateNetworkCursor(dx: Int, dy: Int) {
+            instance?.runOnUiThread {
+                it.moveCursor(dx, dy)
+            }
+        }
+
+        fun setNetworkCursor(x: Int, y: Int) {
+            instance?.runOnUiThread {
+                it.placeCursor(x, y)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        instance = this
         setContentView(R.layout.activity_main)
 
+        rootFrame = findViewById(R.id.rootFrame)
+        cursorView = findViewById(R.id.cursorView)
         status = findViewById(R.id.status)
         statusDot = findViewById(R.id.statusDot)
         accessibilityStatus = findViewById(R.id.accessibilityStatus)
@@ -35,6 +59,7 @@ class MainActivity : AppCompatActivity() {
 
         serverUrl.setText(prefs.getString("server_url", "ws://192.168.31.170:24891"))
         updateStatus(getString(R.string.status_ready), false)
+        cursorView.visibility = View.GONE
 
         connectButton.setOnClickListener {
             val url = serverUrl.text.toString().trim()
@@ -48,15 +73,19 @@ class MainActivity : AppCompatActivity() {
             connectButton.text = "Connecting…"
             updateStatus("Connecting…", false)
 
-            TabletSocket.connect(url) { text ->
-                runOnUiThread {
-                    val connected = text == "Connected"
-                    val failed = text.startsWith("Disconnected") || text.startsWith("Closed")
-                    updateStatus(text, connected, error = failed)
-                    connectButton.isEnabled = true
-                    connectButton.text = getString(R.string.connect)
+            TabletSocket.connect(
+                url = url,
+                status = { text ->
+                    runOnUiThread {
+                        val connected = text == "Connected"
+                        val failed = text.startsWith("Disconnected") || text.startsWith("Closed")
+                        updateStatus(text, connected, error = failed)
+                        connectButton.isEnabled = true
+                        connectButton.text = getString(R.string.connect)
+                        if (!connected) cursorView.visibility = View.GONE
+                    }
                 }
-            }
+            )
         }
 
         accessibilityButton.setOnClickListener {
@@ -74,9 +103,37 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        instance = this
         if (::accessibilityStatus.isInitialized) {
             updateAccessibilityState()
         }
+    }
+
+    override fun onDestroy() {
+        if (instance === this) instance = null
+        super.onDestroy()
+    }
+
+    private fun moveCursor(dx: Int, dy: Int) {
+        val lp = cursorView.layoutParams as FrameLayout.LayoutParams
+        val maxX = (rootFrame.width - cursorView.width).coerceAtLeast(0)
+        val maxY = (rootFrame.height - cursorView.height).coerceAtLeast(0)
+        lp.leftMargin = (lp.leftMargin + dx).coerceIn(0, maxX)
+        lp.topMargin = (lp.topMargin + dy).coerceIn(0, maxY)
+        cursorView.layoutParams = lp
+        cursorView.visibility = View.VISIBLE
+        cursorView.bringToFront()
+    }
+
+    private fun placeCursor(x: Int, y: Int) {
+        val lp = cursorView.layoutParams as FrameLayout.LayoutParams
+        val maxX = (rootFrame.width - cursorView.width).coerceAtLeast(0)
+        val maxY = (rootFrame.height - cursorView.height).coerceAtLeast(0)
+        lp.leftMargin = x.coerceIn(0, maxX)
+        lp.topMargin = y.coerceIn(0, maxY)
+        cursorView.layoutParams = lp
+        cursorView.visibility = View.VISIBLE
+        cursorView.bringToFront()
     }
 
     private fun updateStatus(text: String, connected: Boolean, error: Boolean = false) {
